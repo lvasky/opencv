@@ -185,32 +185,29 @@ namespace
 
             // clip histogram
 
-            if (clipLimit_ > 0)
-            {
                 // how many pixels were clipped
-                int clipped = 0;
-                for (int i = 0; i < histSize; ++i)
+            int clipped = 0;
+            for (int i = 0; i < histSize; ++i)
+            {
+                if (tileHist[i] > clipLimit_)
                 {
-                    if (tileHist[i] > clipLimit_)
-                    {
-                        clipped += tileHist[i] - clipLimit_;
-                        tileHist[i] = clipLimit_;
-                    }
+                    clipped += tileHist[i] - clipLimit_;
+                    tileHist[i] = clipLimit_;
                 }
+            }
 
                 // redistribute clipped pixels
-                int redistBatch = clipped / histSize;
-                int residual = clipped - redistBatch * histSize;
+            int redistBatch = clipped / histSize;
+            int residual = clipped - redistBatch * histSize;
 
-                for (int i = 0; i < histSize; ++i)
-                    tileHist[i] += redistBatch;
+            for (int i = 0; i < histSize; ++i)
+                tileHist[i] += redistBatch;
 
-                if (residual != 0)
-                {
-                    int residualStep = MAX(histSize / residual, 1);
-                    for (int i = 0; i < histSize && residual > 0; i += residualStep, residual--)
-                        tileHist[i]++;
-                }
+            if (residual != 0)
+            {
+                int residualStep = MAX(histSize / residual, 1);
+                for (int i = 0; i < histSize && residual > 0; i += residualStep, residual--)
+                    tileHist[i]++;
             }
 
             // calc Lut
